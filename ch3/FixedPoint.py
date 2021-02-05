@@ -42,7 +42,7 @@ def NM( f, x0, err, df=False, verbose = False):
         while((abs(f(rtn))) + (abs(rtn-old)) > err/5):
             count = count +1            
             old = rtn
-            if df(f, rtn, .000001) == 0:
+            if df(f, rtn, .000000001) == 0:
                 return ('Error, too flat', count)
             rtn = rtn - (f(rtn) / df(f, rtn, .000000001))
             if(verbose):
@@ -68,6 +68,10 @@ def NM( f, x0, err, df=False, verbose = False):
 
 
 
+#5. For each function listed below, find an interval [a,b] such that g([a,b]) C [a,b].
+#  Draw a graph of y = g(x) and y = x over this interval, and confirm that a fixed point
+#  exists there. Estimate (by eye) the value of the fixed point, and use this as a starting
+#  value for a fixed-point iteration. Does the iteration converge? Explain.
 
 
 def fixed_point (x0, f, n, verbose=False):
@@ -89,47 +93,50 @@ C = lambda x: math.cos(x)
 D = lambda x: 1 + math.pow(math.e, -x)
 E = lambda x: .5*(1 + x**2)
 
-nmA = lambda x: .5*(x + (2/x))
-nmB = lambda x: x + math.pow(math.e, -x) - (1/4)
-nmC = lambda x: math.cos(x)
-nmD = lambda x: 1 + math.pow(math.e, -x)
-nmE = lambda x: .5*(1 + x**2)
+nmA = lambda x: x - (.5*(x + (2/x)))
+nmB = lambda x: x - (x + math.pow(math.e, -x) - (1/4))
+nmC = lambda x: x - (math.cos(x))
+nmD = lambda x: x - (1 + math.pow(math.e, -x))
+nmE = lambda x: x - (.5*(1 + x**2))
 
 err = 10**-10
+itter = 100
 
 # Here we are going to compare Newtons method to fixed point 
 
+
+
 print("A:")
 x0 = 1.5
-fpA = fixed_point(x0, A, 100, verbose = False)
+fpA = fixed_point(x0, A, itter, verbose = False)
 print(f"Floating Point est of A: {fpA}")
-#fpNA = NM(nmA, 1.4, err, verbose=True)
-#print(f"Newton's MEthod estimation of A: {fpNA}")
+fpNA = NM(nmA, x0, err, verbose=False)
+print(f"Newton's Method estimation of A: {fpNA}")
   
 print("B:")
 x0 = 1.5
-fpB = fixed_point(x0, B, 100, verbose = False)
+fpB = fixed_point(x0, B, itter, verbose = False)
 print(f"Floating Point est of A: {fpB}")
-#fpNA = NM(nmA, 1.4, err, verbose=True)
-#print(f"Newton's MEthod estimation of A: {fpNA}")
+fpNB = NM(nmB, x0, err, verbose=False)
+print(f"Newton's Method estimation of A: {fpNB}")
 
 print("C:")
 x0 = .75
-fpC = fixed_point(x0, C, 100, verbose = False)
+fpC = fixed_point(x0, C, itter, verbose = False)
 print(f"Floating Point est of A: {fpC}")
-#fpNA = NM(nmA, 1.4, err, verbose=True)
-#print(f"Newton's MEthod estimation of A: {fpNA}")
+fpNC = NM(nmC, x0, err, verbose=False)
+print(f"Newton's Method estimation of A: {fpNC}")
 
 print("D:")
 x0 = 1.25
-fpD = fixed_point(x0, D, 100, verbose = False)
+fpD = fixed_point(x0, D, itter, verbose = False)
 print(f"Floating Point est of A: {fpD}")
-#fpNA = NM(nmA, 1.4, err, verbose=True)
-#print(f"Newton's MEthod estimation of A: {fpNA}")
+fpND = NM(nmD, x0, err, verbose=False)
+print(f"Newton's Method estimation of A: {fpND}")
 
 print("E:")
-x0 = 1
-fpE = fixed_point(x0, E, 100, verbose = False)
+x0 = .99
+fpE = fixed_point(x0, E, 1000, verbose = False)
 print(f"Floating Point est of A: {fpE}")
-#fpNA = NM(nmA, 1.4, err, verbose=True)
-#print(f"Newton's MEthod estimation of A: {fpNA}")
+fpNE = NM(nmE, x0, err, verbose=False)
+print(f"Newton's Method estimation of A: {fpNE}")

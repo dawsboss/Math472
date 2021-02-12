@@ -75,21 +75,80 @@ def AnMatrix( n ):
     return rtn
 
 
-#7.2 - Alg 7.1 - for Ax=b for an A that is square 
+#7.2 - Alg 7.1 - Native Gaussian Elimination 
 #   Parameters:
-#       A - numpy matrix
-#       B - numpy matrix
+#       A - numpy matrix - NxN - Square
+#       B - numpy matrix - 1xN - Vector
 #   Output:
-def GaussianElim(A,B):
+#       numpy matrix that is in echelon form
+def GaussianPT1(A,B):
+    a = np.concatenate((A, B), axis=1)
+    n = a.shape[0]
+    for i in range(n):
+        if a[i,i] == 0.0:
+            print("Dividing by zero!")
+            pass
+             
+        for j in range(i+1, n):
+            ratio = a[j,i]/a[i,i]
+             
+            for k in range(n+1):
+                a[j,k] = a[j,k] - ratio * a[i,k]
+    b = a[:,n]
+    a = np.delete(a, n, 1)
+    return (a, b)
+
+#7.2 - Alg 7.2 - Backward Solution 
+#   Parameters:
+#       A - numpy matrix - NxN - Square
+#       B - numpy matrix - 1xN - Vector
+#   Output:
+#       Vector X - Solution from Ax=B
+def GaussianPT2(A,B):
     n = A.shape[0]
-    X = np.copy(B)
-    for i in range(1, n):
-        for j in range(i+1, n+1):
-            m = A(j,i)/A(i,i)
-            for k in range(i+1, n):
-                A[j,k] = A[j,k] - (m*A[i,k])
-            B[j] = B[j] - m*B[i]
-    return B
+    X = np.zeros((n,1))
+    X[n-1] = B[n-1] / A[n-1,n-1]
+    for i in range(n-2, -1, -1):
+        sum = 0
+        for j in range(i, n):
+            sum = sum + A[i,j]*X[j]
+        X[i] = (B[i]-sum)/A[i,i]
+    return X
+
+#7.2 - Alg 7.4 - Gaussian Elimination with Partial Pivoting
+#   Parameters:
+#       A - numpy matrix - NxN - Square
+#       B - numpy matrix - Nx1 - Vector
+#   Output:
+#       numpy matrix that is in echelon form
+def GausElim(A,B):
+    a = np.concatenate((A, B), axis=1)
+    
+    n = A.shape[0]
+    for i in range(0, n):
+        am = abs(a[i,i])
+        p=i
+        for j in range(i+1, n):
+            if abs(a[j,i]) > am:
+                am = abs(a[j,i])
+                p=j
+    #print(B)
+        if p > i:
+            for k in range(i, n+1):
+                hold = a[i,k]
+                a[i,k] = a[p,k]
+                a[p,k] = hold
+        for j in range(i+1, n):
+            ratio = a[j,i]/a[i,i]
+             
+            for k in range(n+1):
+                a[j,k] = a[j,k] - ratio * a[i,k]
+    
+    b = a[:,n]
+    a = np.delete(a, n, 1)
+    return (a,b)
+                
+
 
 
 #Used for testing the library code

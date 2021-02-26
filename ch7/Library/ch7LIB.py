@@ -150,7 +150,7 @@ def GausElim(A,B,verbose=False):
     b = a[:,n]
     a = np.delete(a, n, 1)
     return (a,b)
-                
+
 
 
 
@@ -159,7 +159,28 @@ def GausElim(A,B,verbose=False):
 ######
 
 
-#7.4 - Alg 7.5 - LU Decomposition (no pivoting)
+
+#7.4 - Alg 7.5 - LU decomposition algorithm (no pivoting)
+#   Parameters:
+#       A - numpy matrix - NxN - Square
+#   Output:
+#       LUFact - numpy matrix 
+#       indx - list of indexes of -----
+def factorization(a):
+    """
+    Perform Decomposition
+    """
+    n = a.shape[0]
+    A = a.copy()
+    for i in range(n):
+        for j in range(i+1, n):
+            A[j, i] = A[j, i]/A[i, i]
+            for k in range(i+1, n):
+                A[j, k] = A[j, k] - A[j, i]*A[i, k]
+    return A
+
+
+#7.4 - Alg 7.7 - LU Decomposition with Partial Pivoting
 #   Parameters:
 #       A - numpy matrix - NxN - Square
 #   Output:
@@ -223,7 +244,8 @@ def LUExplode(A):
 #   Output:
 #       L - numpy matrix - botton left triangle
 #       U - numpy matrix - top right triangle                
-#       P - numpy matrix - 
+#       P - numpy matrix - permutation matrix (Stuff gets shifted around from the pivioting)
+#   P@L@U == A
 def LUExplodePerm(A, idx):
     rtn = False
     (Arows, Acols) = np.shape(A)
@@ -237,7 +259,7 @@ def LUExplodePerm(A, idx):
         print("Matrix is not square")
     return rtn()
 
-#7.4 - ALg 7.7 - 
+#7.4 - ALg 7.8 - Forward-Backward Solution, Using LU Decomposition
 #   Parameters:
 #       X - numpy matrix - NxN - Square
 #       bvec - numpy matrix - Nx1
@@ -265,6 +287,100 @@ def LUsolver(X, bvec, ivec):
             s = s + X[i,j] * x[j]
         x[i] = (y[i]-s)/X[i,i]
     return x
+                
+
+
+
+######
+##  7.5 code
+######
+
+
+### Basic alg
+
+# Calculate the Infinity Norm of a matrix (row)
+def matrixInfinityNorm(A_):
+    A = np.copy(np.abs(A_))
+    rowsum = np.sum(A,axis=1).tolist()
+    return np.max(rowsum)
+
+# Calculate the Infinity Min of a vector
+def vectorInfinityMin(v):
+    return np.min(np.abs(v))
+
+# Calculate the Infinity Norm of a vector
+def vectorInfinityNorm(v):
+    return np.max(np.abs(v))
+
+# Calculate 2-Norm of a matrix
+def matrix2Norm(A_):
+    A = np.matmul(A_, np.transpose(A_))
+    (eigval, eigvect) = np.linalg.eig(A)
+    return math.sqrt(np.max(eigval))
+    
+
+# Calculate 2-Norm of a vector
+def vector2Norm(v):
+    return math.pow(np.sum(np.pow(v,2)),1.0/2.0)
+        
+# Calculate P-norm of a vector
+def vectorPNorm(v, p):
+    return math.pow(np.sum(np.power(np.abs(v),p)), 1.0/p)
+
+
+### Advanced alg
+
+#7.5 - Def 7.3 - Condition Number
+#   Parameters:
+#       A - numpy matrix 
+#       Norm - function pointer ot a norm function
+#   Output:
+#       k(A) - Condition Number
+def conditionNumber(A, Norm):
+    Ainv = np.linalg.inv(A)
+    return Norm(A) * Norm(Ainv)
+
+#7.5 - Thrm 7.3 - Condition Number
+#   Parameters:
+#       A - numpy matrix 
+#   Output:
+#       k(A) - Condition Number
+def conditionNumberEsitimation(A):
+    (row, col) = np.shape(A)
+    alpha = matrixInfinityNorm(A)
+    
+    (X,idx) = LU(A)
+    
+    y = np.random.rand(row,1)#This can be cahnge TODO
+    for i in range(5):
+        y = y/vectorInfinityNorm(y)
+        y = LUsolver(X,y,idx)
+    
+    return alpha * vectorInfinityNorm(y)
+
+#7.5 - Def 7.4 - Gaussian Elimination Growth Factor
+#   Parameters:
+#       A - numpy matrix
+#   Output:
+#       
+def growthFactor(A_):
+    rtn = False
+    A = np.copy(A_)
+    (row, col)=np.shape(A)
+    gn = -1
+    if(row == col):
+        for i in range(row-1):
+            for j in range(i+1, row):
+                m = A[j,i]/A[i,i]
+                for k in range(row):
+                    A[j,k] = A[j,k] - m*A[i,k]
+            gn = max(np.max(np.abs(A)),gn)
+        N = matrixInfinityNorm(A_)
+        rtn = gn/N
+    else: 
+        print("Inputted matrix must be square!")
+    return rtn
+
 
 #Used for testing the library code
 if __name__ == '__main__':

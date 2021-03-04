@@ -81,7 +81,9 @@ def AnMatrix( n ):
 #       B - numpy matrix - 1xN - Vector
 #   Output:
 #       numpy matrix that is in echelon form
-def GaussianPT1(A,B, verbose=False):
+def GaussianPT1(A_,B_, verbose=False):
+    A=np.copy(A_)
+    B=np.copy(B_)
     a = np.concatenate((A, B), axis=1)
     n = a.shape[0]
     for i in range(n):
@@ -107,7 +109,9 @@ def GaussianPT1(A,B, verbose=False):
 #       B - numpy matrix - 1xN - Vector
 #   Output:
 #       Vector X - Solution from Ax=B
-def GaussianPT2(A,B, verbose=False):
+def GaussianPT2(A_,B_, verbose=False):
+    A=np.copy(A_)
+    B=np.copy(B_)
     n = A.shape[0]
     X = np.zeros((n,1))
     X[n-1] = B[n-1] / A[n-1,n-1]
@@ -124,32 +128,40 @@ def GaussianPT2(A,B, verbose=False):
 #       B - numpy matrix - Nx1 - Vector
 #   Output:
 #       numpy matrix that is in echelon form
-def GausElim(A,B,verbose=False):
-    a = np.concatenate((A, B), axis=1)
-    
+def GausElim(A_,B_,verbose=False):
+    A = np.copy(A_)
+    b = np.copy(B_)
     n = A.shape[0]
-    for i in range(0, n):
-        am = abs(a[i,i])
-        p=i
+    for i in range(n-1):
+        am = abs(A[i,i])
+        p = i
         for j in range(i+1, n):
-            if abs(a[j,i]) > am:
-                am = abs(a[j,i])
-                p=j
-    #print(B)
+            if abs(A[j,i]) > am:
+                am = abs(A[j,i])
+                p = j
         if p > i:
-            for k in range(i, n+1):
-                hold = a[i,k]
-                a[i,k] = a[p,k]
-                a[p,k] = hold
+            for k in range(i, n):
+                hold = A[i,k]
+                A[i,k] = A[p,k]
+                A[p,k] = hold
+            hold = np.copy(b[i])
+            b[i] = np.copy(b[p])
+            b[p] = hold
         for j in range(i+1, n):
-            ratio = a[j,i]/a[i,i]
-             
-            for k in range(n+1):
-                a[j,k] = a[j,k] - ratio * a[i,k]
-    
-    b = a[:,n]
-    a = np.delete(a, n, 1)
-    return (a,b)
+            m = A[j,i]/A[i,i]
+            for k in range(i+1, n):
+                A[j,k] = A[j,k] - m*A[i,k]
+            b[j] = b[j] - m*b[i]
+            
+    n = A.shape[0]
+    x = np.zeros(n)
+    x[n - 1] = b[n - 1]/A[n - 1, n - 1]
+    for i in range(n-1, 0, -1):
+        sum_ = 0
+        for j in range(i+1, n):
+            sum_ = sum_ + A[i,j]*x[j]
+        x[i] = (b[i] - sum_)/A[i,i]
+    return A, b, x
 
 
 
@@ -362,7 +374,8 @@ def conditionNumberEsitimation(A):
 #   Parameters:
 #       A - numpy matrix
 #   Output:
-#       
+#      growth number
+      
 def growthFactor(A_):
     rtn = False
     A = np.copy(A_)
@@ -380,6 +393,15 @@ def growthFactor(A_):
     else: 
         print("Inputted matrix must be square!")
     return rtn
+
+#7.5 - Def 7.6 - LDL Factorization
+#   Parameters:
+#       A - numpy matrix
+#   Output:
+#       L - numpy matrix
+#       D - numpy matrix
+def LDL(A_):
+    A=np.copy(A_)
 
 
 #Used for testing the library code

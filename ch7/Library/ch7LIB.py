@@ -402,7 +402,28 @@ def growthFactor(A_):
 #       D - numpy matrix
 def LDL(A_):
     A=np.copy(A_)
-
+    row,col = np.shape(A)
+    L = np.eye(row)
+    D = np.zeros((row,col))
+    
+    #2x2 base case
+    D[0,0] = A[0,0].copy()
+    for i in range(1, row):
+        L[i,0] = A[i,0]/A[0,0]
+    D[1,1] = A[1,1] - (A[0,1]**2)/A[0,0]
+    
+    #Check if we need more than 2x2
+    if(row>2):
+        for i in range(2,row):
+            for j in range(1,i):
+                L[i,j] = A[i,j]
+                for k in range(j):
+                    L[i,j] = L[i,j] - L[i,k]*L[j,k]*D[k,k]
+                L[i,j] = L[i,j]/D[j,j]
+            D[i,i]=A[i,i]
+            for k in range(i):
+                D[i,i] = D[i,i] - (L[i,k]**2)*D[k,k]
+        return (L,D)
 
 #Used for testing the library code
 if __name__ == '__main__':

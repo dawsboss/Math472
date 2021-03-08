@@ -152,7 +152,8 @@ def GausElim(A_,B_,verbose=False):
             for k in range(i+1, n):
                 A[j,k] = A[j,k] - m*A[i,k]
             b[j] = b[j] - m*b[i]
-            
+    
+    """
     n = A.shape[0]
     x = np.zeros(n)
     x[n - 1] = b[n - 1]/A[n - 1, n - 1]
@@ -161,7 +162,8 @@ def GausElim(A_,B_,verbose=False):
         for j in range(i+1, n):
             sum_ = sum_ + A[i,j]*x[j]
         x[i] = (b[i] - sum_)/A[i,i]
-    return A, b, x
+    """
+    return A, b
 
 
 
@@ -380,21 +382,21 @@ def growthFactor(A_):
     rtn = False
     A = np.copy(A_)
     (row, col)=np.shape(A)
-    gn = -1
+    temp = -1
     if(row == col):
         for i in range(row-1):
             for j in range(i+1, row):
                 m = A[j,i]/A[i,i]
                 for k in range(row):
                     A[j,k] = A[j,k] - m*A[i,k]
-            gn = max(np.max(np.abs(A)),gn)
+            temp = max(np.max(np.abs(A)),temp)
         N = matrixInfinityNorm(A_)
-        rtn = gn/N
+        rtn = temp/N
     else: 
         print("Inputted matrix must be square!")
     return rtn
 
-#7.5 - Def 7.6 - LDL Factorization
+#7.6 - Def 7.6 - LDL Factorization
 #   Parameters:
 #       A - numpy matrix
 #   Output:

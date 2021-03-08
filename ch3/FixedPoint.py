@@ -10,13 +10,6 @@ import math
 #import NewtonMethod.py as NM
 #from NewtonMethod.py import Better_Error_Newton_Method as NM
 
-
-
-
-
-
-
-
 def derivatice_approx( f, x, h ):
     return ( 8*f(x+h) - 8.0*f(x-h) - f( x + 2.0*h) + f(x - 2.0*h) ) / (12.0 * h)
 
@@ -51,23 +44,6 @@ def NM( f, x0, err, df=False, verbose = False):
     return (rtn,count)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #5. For each function listed below, find an interval [a,b] such that g([a,b]) C [a,b].
 #  Draw a graph of y = g(x) and y = x over this interval, and confirm that a fixed point
 #  exists there. Estimate (by eye) the value of the fixed point, and use this as a starting
@@ -75,8 +51,7 @@ def NM( f, x0, err, df=False, verbose = False):
 
 
 def fixed_point (x0, f, n, verbose=False):
-    retval = x0
-    
+    retval = x0    
     if verbose:
         print(f"Init retval : {retval}")
     for i in range(n):

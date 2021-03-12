@@ -21,7 +21,9 @@ print(f"A:\n {A}\n")
 print(f"B:\n {B}\n")
 
 #A,B = ch7.GaussianPT1(A,B)
-A,B,X = ch7.GausElim(A,B)
+A,B = ch7.GausElim(A,B)
+X = ch7.GaussianPT2(A,B)
+print(X)
 
 print(f"A:\n {A}\n")
 print(f"B:\n {B}\n")

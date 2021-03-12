@@ -427,6 +427,64 @@ def LDL(A_):
                 D[i,i] = D[i,i] - (L[i,k]**2)*D[k,k]
         return (L,D)
 
+########
+##7.7
+########
+
+#7.7 -  - Jacobi Iteration
+#   Parameters:
+#       A - numpy matrix
+#       b - numpy vector(nx1)
+#       x0 - single number to start itteration at
+#       n - number of itterations
+#   Output:
+#       x - numpy matrix (nx1)
+def JacobiIteration(A, b, x0, n, verbose=False):
+    rtn = x0.copy()
+    Diag = np.diagonal(A)
+    (row, col) = np.shape(A)
+    D = np.zeros(shape=(row,col))
+    for i in range(row):
+        D[i,i] = 1/Diag[i];
+    I = np.eye(row)
+    for i in range(n):
+        rtn = np.add(np.matmul(np.subtract(I, np.matmul(D,A)), rtn), np.matmul(D,b))
+    return rtn
+
+#7.7 -  - Gauss Seide lIteration
+#   Parameters:
+#       A - numpy matrix
+#       b - numpy vector(nx1)
+#       x0 - single number to start itteration at
+#       n - number of itterations
+#   Output:
+#       x - numpy matrix (nx1)
+def GaussSeidelIteration(A, b, x0, n, verbose=False):
+    rtn = x0.copy()
+    L = np.tril(A)
+    for i in range(n):
+        rtn = np.add(np.subtract(rtn, np.linalg.solve(L, np.matmul(A, rtn))),np.linalg.solve(L, b))
+    return rtn
+
+#7.7 -  - Gauss Seide lIteration
+#   Parameters:
+#       A - numpy matrix
+#       b - numpy vector(nx1)
+#       x0 - single number to start itteration at
+#       n - number of itterations
+#   Output:
+#       x - numpy matrix (nx1)
+def SORIteration(A, b, x0, n, w, verbose=False):
+    rtn = x0.copy()
+    L = np.tril(A, -1)
+    (row, col) = np.shape(A)
+    D = np.diag(np.diag(A))
+    Q = np.add((1/w)*D, L)
+    for i in range(n):
+        rtn = np.add(np.subtract(rtn, np.linalg.solve(Q, np.matmul(A,rtn))), np.linalg.solve(Q,b))
+    return rtn;
+
+
 #Used for testing the library code
 if __name__ == '__main__':
     B = HnMatrix(5)

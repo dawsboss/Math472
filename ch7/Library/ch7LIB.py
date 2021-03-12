@@ -31,11 +31,11 @@ def KnMatrix( n ):
     for i in range(n):
         for j in range(n):
             if i==j:
-                rtn[i,j] = 2
+                rtn[i,j] = 2.0
             elif abs(i-j)==1:
-                rtn[i,j]= -1
+                rtn[i,j]= -1.0
             else:
-                rtn[i,j] = 0
+                rtn[i,j] = 0.0
     return rtn
 
 #Tn Matrix creator function:
@@ -48,11 +48,28 @@ def TnMatrix( n ):
     for i in range(n):
         for j in range(n):
             if i==j:
-                rtn[i,j] = 4
+                rtn[i,j] = 4.0
             elif abs(i-j)==1:
-                rtn[i,j] = 1
+                rtn[i,j] = 1.0
             else:
-                rtn[i,j] = 0
+                rtn[i,j] = 0.0
+    return rtn
+
+#Tn Matrix creator function: produces same as Tn matrix but the 4's are negative
+#   Parameters: 
+#       n - size of square matrix
+#   Outputs:
+#       numpy Tn-style Matrix
+def TnNegMatrix( n ):
+    rtn = np.zeros((n,n), dtype=np.float64)
+    for i in range(n):
+        for j in range(n):
+            if i==j:
+                rtn[i,j] = -4.0
+            elif abs(i-j)==1:
+                rtn[i,j] = 1.0
+            else:
+                rtn[i,j] = 0.0
     return rtn
 
 #An Matrix creator function:
@@ -65,13 +82,13 @@ def AnMatrix( n ):
     for i in range(n):
         for j in range(n):
             if i==j:
-                rtn[i,j] = 1
+                rtn[i,j] = 1.0
             elif i-j==1:
-                rtn[i,j] = 4
+                rtn[i,j] = 4.0
             elif i-j==-1:
-                rtn[i,j] = -4
+                rtn[i,j] = -4.0
             else:
-                rtn[i,j] = 0
+                rtn[i,j] = 0.0
     return rtn
 
 
@@ -335,7 +352,7 @@ def matrix2Norm(A_):
 
 # Calculate 2-Norm of a vector
 def vector2Norm(v):
-    return math.pow(np.sum(np.pow(v,2)),1.0/2.0)
+    return math.sqrt(np.sum(np.square(v)))
         
 # Calculate P-norm of a vector
 def vectorPNorm(v, p):
@@ -447,9 +464,35 @@ def JacobiIteration(A, b, x0, n, verbose=False):
     for i in range(row):
         D[i,i] = 1/Diag[i];
     I = np.eye(row)
+    negDA = np.subtract(I, np.matmul(D,A))
+    DB = np.matmul(D,b)
     for i in range(n):
-        rtn = np.add(np.matmul(np.subtract(I, np.matmul(D,A)), rtn), np.matmul(D,b))
+        rtn = np.add(np.matmul(negDA, rtn), DB)
     return rtn
+
+def JacobiIterationErr(A, b, x0, errtol, verbose=False):
+    rtn = x0.copy()
+    Diag = np.diagonal(A)
+    (row, col) = np.shape(A)
+    D = np.zeros(shape=(row,col))
+    for i in range(row):
+        D[i,i] = 1/Diag[i];
+    I = np.eye(row)
+    negDA = np.subtract(I, np.matmul(D,A))
+    DB = np.matmul(D,b)
+    count=0
+    while(True):
+        count+=1
+        prev = rtn
+        rtn = np.add(np.matmul(negDA, rtn), DB)
+        con = vector2Norm(np.subtract(rtn, prev))
+        if(verbose):
+            print(f"prev: {prev}")
+            print(f"con: {con}")
+
+        if(con <= errtol):
+            break
+    return (rtn, count)
 
 #7.7 -  - Gauss Seide lIteration
 #   Parameters:
@@ -462,9 +505,23 @@ def JacobiIteration(A, b, x0, n, verbose=False):
 def GaussSeidelIteration(A, b, x0, n, verbose=False):
     rtn = x0.copy()
     L = np.tril(A)
-    for i in range(n):
-        rtn = np.add(np.subtract(rtn, np.linalg.solve(L, np.matmul(A, rtn))),np.linalg.solve(L, b))
+    LB = np.linalg.solve(L, b)
+    for _ in range(n):
+        rtn = np.add(np.subtract(rtn, np.linalg.solve(L, np.matmul(A, rtn))),LB)
     return rtn
+
+def GaussSeidelIterationErr(A, b, x0, errtol, verbose=False):
+    rtn = x0.copy()
+    L = np.tril(A)
+    LB = np.linalg.solve(L, b)
+    count=0
+    while(True):
+        count+=1
+        prev = rtn
+        rtn = np.add(np.subtract(rtn, np.linalg.solve(L, np.matmul(A, rtn))),LB)
+        if(vector2Norm(np.subtract(rtn, prev)) <= 0):
+            break
+    return (rtn,count)
 
 #7.7 -  - Gauss Seide lIteration
 #   Parameters:
@@ -480,9 +537,26 @@ def SORIteration(A, b, x0, n, w, verbose=False):
     (row, col) = np.shape(A)
     D = np.diag(np.diag(A))
     Q = np.add((1/w)*D, L)
-    for i in range(n):
-        rtn = np.add(np.subtract(rtn, np.linalg.solve(Q, np.matmul(A,rtn))), np.linalg.solve(Q,b))
+    QB = np.linalg.solve(Q,b)
+    for _ in range(n):
+        rtn = np.add(np.subtract(rtn, np.linalg.solve(Q, np.matmul(A,rtn))), QB)
     return rtn;
+
+def SORIterationErr(A, b, x0, errtol, w, verbose=False):
+    rtn = x0.copy()
+    L = np.tril(A, -1)
+    (row, col) = np.shape(A)
+    D = np.diag(np.diag(A))
+    Q = np.add((1/w)*D, L)
+    QB = np.linalg.solve(Q,b)
+    count=0
+    while True:
+        count+=1
+        prev = rtn
+        rtn = np.add(np.subtract(rtn, np.linalg.solve(Q, np.matmul(A,rtn))), QB)
+        if(vector2Norm(np.subtract(rtn, prev)) <= errtol):
+            break
+    return (rtn,count);
 
 
 #Used for testing the library code

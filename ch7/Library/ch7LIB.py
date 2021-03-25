@@ -8,6 +8,7 @@ Library for chapter 7
 """
 import numpy as np
 import math
+import sympy as sy
 
 #Hn Matrix creator function:
 #   Parameters: 
@@ -558,6 +559,45 @@ def SORIterationErr(A, b, x0, errtol, w, verbose=False):
             break
     return (rtn,count);
 
+#7.8 - Multi Dimenssional Newtons Method
+#   Parameters:
+#       f - Function - Lmabda/Function pointer
+#       errtol - Error Tolerance
+#       kinv - K inverse - inverse of gradient vector
+#   Output:
+#       x - numpy matrix (nx1)
+def multiDimNewtons(f, errtol, x0, kinv=False, verbose=False):
+    if kinv==False:
+        kinv = KInv(f)
+    rtn = x0.copy()
+    count=0
+    while True:
+        count+=1
+        prev = rtn
+        rtn = np.subtract(prev, np.matmul(kinv, multiDimF(f,prev)))
+        if(vector2Norm(np.subtract(rtn, prev)) <= errtol):
+            break
+    return (rtn,count);
+
+#7.8 - f(x) - Multi Dimenssional Newtons Method Helper Function
+#   Parameters:
+#       f - Array of Functions - Lmabda/Function pointer
+#       x - Numpy matrix - values to plug into f
+#   Output:
+#       x - numpy matrix (nx1) - [f(x1), f(x2), ...]
+def multiDimF(f,x):
+    rtn = x.copy()
+    for i in range(0.,x.shape[1]):
+        rtn[i] = f(x[i])
+    return rtn
+
+#7.8 - K Inverse - Multi Dimenssional Newtons Method Helper Function
+#   Parameters:
+#       f - Array of Functions - Lmabda/Function pointer
+#   Output:
+#       Kinv - numpy matrix - Gradient Matrix
+def KInv(f):
+    return f
 
 #Used for testing the library code
 if __name__ == '__main__':

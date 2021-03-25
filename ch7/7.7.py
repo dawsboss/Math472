@@ -9,23 +9,29 @@ import numpy as np
 import math
 import ch7.Library.ch7LIB as ch7
 
-# A = np.matrix( [ [4, 1, 0, 0],
-#                  [1, 5, 1, 0],
-#                  [0, 1, 6, 1],
-#                  [1, 0, 1, 4] ], dtype=np.float64)
 
-# b = np.transpose(np.matrix([1, 7, 16, 14], dtype=np.float64))
+A = np.matrix(  [ [4, 1, 0, 0],
+                  [1, 5, 1, 0],
+                  [0, 1, 6, 1],
+                  [1, 0, 1, 4] ], dtype=np.float64)
 
-# x0 = np.transpose(np.matrix([0, 0, 0, 0], dtype=np.float64))
+b = np.transpose(np.matrix([1, 7, 16, 14], dtype=np.float64))
 
-# n=10
+x0 = np.transpose(np.matrix([0, 0, 0, 0], dtype=np.float64))
 
-# print(ch7.JacobiIteration(A,b,x0,n))
+n=1000
 
-# print(ch7.GaussSeidelIteration(A,b,x0,n))
+print(ch7.JacobiIteration(A,b,x0,n))
 
-# w=1.9
-# print(ch7.SORIteration(A,b,x0,n,w))
+print(ch7.GaussSeidelIteration(A,b,x0,n))
+
+w=1.05
+print(ch7.SORIteration(A,b,x0,n,w))
+
+
+
+
+
 
 print("\n7.7.7 goofing\n")
 
@@ -40,6 +46,9 @@ A = np.bmat( [ [ D.copy(), I.copy(), Z.copy(), Z.copy() ],
 b = np.transpose(np.matrix([5, 11, 18, 21, 29, 40, 48, 48, 57, 72, 80, 76, 69, 87, 94, 85], dtype=np.float64))
 errtol = 10e-10
 x0 = np.zeros(shape=(16,1))
+
+
+
 
 (x, count) = ch7.JacobiIterationErr(A,b,x0,errtol)
 print(f"Jacobi Iteration converged in {count} moves\n") 
@@ -59,13 +68,27 @@ for w in W:
     
 print("\n7.7.6\n")  
     
-A = np.matrix( [ [ 4, -1, 0, 0 ],
+A = np.matrix( [ [ 4, -1, 0, -1 ],
                  [ -1, 4, -1, 0 ],
                  [ 0, -1, 4, -1 ],
                  [ -1, 0, -1, 4 ] ], dtype=np.float64 )
 b = np.transpose(np.matrix([-1, 2, 4, 10],dtype=np.float64))
 x0 = np.zeros(shape=(4,1))  
-  
+
+
+
+
+(x, count) = ch7.JacobiIterationErr(A,b,x0,errtol)
+print(f"Jacobi Iteration converged in {count} moves\nx: {x}\n") 
+
+(x, count) = ch7.GaussSeidelIterationErr(A,b,x0,errtol)
+print(f"Gauss converged in {count} moves\nx: {x}") 
+ 
 for w in W:
     (x, count) = ch7.SORIterationErr(A,b,x0,errtol,w)
-    print(f"Jacobi Iteration converged in {count} moves | w:{w}") 
+    print(f"SOR converged in {count} moves | w:{w}") 
+    
+
+    
+    
+    
